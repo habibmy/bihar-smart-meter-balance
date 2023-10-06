@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Meter Balance Checker</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .card {
+        background-color: rgb(150, 128, 247);
+        padding: 40px;
+        border-radius: 20px;
+      }
+      h2 {
+        margin: 10px;
+      }
+      /* Apply basic styling to the body */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Style the form container */
+      form {
+        background-color: #ffffff;
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Style form input fields */
+      input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        max-width: -webkit-fill-available;
+      }
+
+      /* Style the submit button */
+      input[type="submit"] {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+
+      /* Change button color on hover */
+      input[type="submit"]:hover {
+        background-color: #0056b3;
+      }
+
+      /* Center the form on the page */
+      @media (max-width: 768px) {
+        form {
+          width: 90%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h2>Get Your Meters Balance</h2>
+      <form onsubmit="submitHandler(event)">
+        <input type="text" name="CAno" id="CAno" minlength="9" maxlength="9" />
+        <input type="submit" value="Submit" />
+      </form>
+      <div id="resultContainer">
+        <!-- Details will be displayed here -->
+      </div>
+    </div>
+    <script>
+      function submitHandler(event) {
+        event.preventDefault(); // Prevent the default form submission
+        let headersList = {
+          Accept: "*/*",
+          "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+          "Content-Type": "application/x-www-form-urlencoded",
+        };
+
+        // Get the CAno value from the input field
+        let CAno = document.getElementById("CAno").value;
+
+        // Create the form-encoded data
+        let bodyContent = "StrCANumber=" + encodeURIComponent(CAno);
+
+        fetch(
+          "http://hargharbijli.bsphcl.co.in/WebService/WebServiceGIS.asmx/GetSMPaymentDetails",
+          {
+            method: "POST",
+            body: bodyContent,
+            headers: headersList,
+          }
+        )
+          .then((response) => response.text())
+          .then((xmlData) => {
+            // Parse the XML response
+            let parser = new DOMParser();
+            let xmlDoc = parser.parseFromString(xmlData, "text/xml");
+
+            // Extract the JSON data from the <string> element
+            let jsonString =
+              xmlDoc.getElementsByTagName("string")[0].textContent;
+
+            // Parse the JSON data
+            let jsonData = JSON.parse(jsonString);
+
+            // Now you can access the individual properties in the JSON data
+            let resultHTML = `
+      <h2>Smart Meter Details</h2>
+      <p><strong>Balance:</strong> ${jsonData.Balance}</p>
+      <p><strong>Consumer Number:</strong> ${jsonData.Consumer_number}</p>
+      <p><strong>Response Date Time:</strong> ${jsonData.responseDateTime}</p>
+      <p><strong>Status:</strong> ${jsonData.status}</p>
+      <p><strong>Meter Number:</strong> ${jsonData.MeterNumber}</p>
+      <p><strong>Connection Status:</strong> ${jsonData.ConnectionStatus}</p>
+    `;
+
+            // Insert the HTML content into the result container
+            document.getElementById("resultContainer").innerHTML = resultHTML;
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+    </script>
+  </body>
+</html>
