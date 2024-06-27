@@ -100,14 +100,11 @@
         // Create the form-encoded data
         let bodyContent = "StrCANumber=" + encodeURIComponent(CAno);
 
-        fetch(
-          "http://hargharbijli.bsphcl.co.in/WebService/WebServiceGIS.asmx/GetSMPaymentDetails",
-          {
-            method: "POST",
-            body: bodyContent,
-            headers: headersList,
-          }
-        )
+        fetch("https://smart-meter-balance.habibmy.workers.dev/", {
+          method: "POST",
+          body: bodyContent,
+          headers: headersList,
+        })
           .then((response) => response.text())
           .then((xmlData) => {
             // Parse the XML response
