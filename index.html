@@ -4,83 +4,96 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Smart Meter Balance Checker</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
       * {
-        padding: 0;
         margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
       body {
+        font-family: "Roboto", sans-serif;
+        background-color: #f5f5f5;
+        color: #333;
         display: flex;
         justify-content: center;
         align-items: center;
         height: 100vh;
+        margin: 0;
       }
       .card {
-        background-color: rgb(150, 128, 247);
+        background-color: #ffffff;
         padding: 40px;
         border-radius: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
       }
       h2 {
-        margin: 10px;
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #4caf50;
       }
-      /* Apply basic styling to the body */
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f0f0;
-        margin: 0;
-        padding: 0;
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        text-align: left;
       }
-
-      /* Style the form container */
-      form {
-        background-color: #ffffff;
-        max-width: 400px;
-        margin: 0 auto;
-        padding: 20px;
-        border-radius: 5px;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-      }
-
-      /* Style form input fields */
       input[type="text"] {
         width: 100%;
         padding: 10px;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
         border: 1px solid #ccc;
-        border-radius: 3px;
-        max-width: -webkit-fill-available;
+        border-radius: 4px;
+        font-size: 16px;
       }
-
-      /* Style the submit button */
-      input[type="submit"] {
+      button {
         background-color: #007bff;
-        color: #fff;
-        padding: 10px 15px;
+        color: white;
+        padding: 10px 20px;
         border: none;
-        border-radius: 3px;
+        border-radius: 4px;
         cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
       }
-
-      /* Change button color on hover */
-      input[type="submit"]:hover {
+      button:hover {
         background-color: #0056b3;
       }
-
-      /* Center the form on the page */
-      @media (max-width: 768px) {
-        form {
-          width: 90%;
-        }
+      #resultContainer {
+        margin-top: 20px;
+        text-align: left;
+      }
+      #loading {
+        display: none;
+        font-size: 16px;
+        margin-top: 20px;
+        color: #007bff;
       }
     </style>
   </head>
   <body>
     <div class="card">
-      <h2>Get Your Meters Balance</h2>
+      <h2>Smart Meter Balance Checker</h2>
       <form onsubmit="submitHandler(event)">
-        <input type="text" name="CAno" id="CAno" minlength="9" maxlength="9" />
-        <input type="submit" value="Submit" />
+        <label for="CAno">Meter Number</label>
+        <input
+          type="text"
+          id="CAno"
+          name="CAno"
+          minlength="9"
+          maxlength="9"
+          placeholder="Enter your meter number"
+          required
+        />
+        <button type="submit">Check Balance</button>
       </form>
+      <div id="loading">Loading...</div>
       <div id="resultContainer">
         <!-- Details will be displayed here -->
       </div>
@@ -88,6 +101,9 @@
     <script>
       function submitHandler(event) {
         event.preventDefault(); // Prevent the default form submission
+        document.getElementById("loading").style.display = "block"; // Show loading indicator
+        document.getElementById("resultContainer").innerHTML = ""; // Clear previous results
+
         let headersList = {
           Accept: "*/*",
           "User-Agent": "Thunder Client (https://www.thunderclient.com)",
@@ -120,20 +136,23 @@
 
             // Now you can access the individual properties in the JSON data
             let resultHTML = `
-      <h2>Smart Meter Details</h2>
-      <p><strong>Balance:</strong> ${jsonData.Balance}</p>
-      <p><strong>Consumer Number:</strong> ${jsonData.Consumer_number}</p>
-      <p><strong>Response Date Time:</strong> ${jsonData.responseDateTime}</p>
-      <p><strong>Status:</strong> ${jsonData.status}</p>
-      <p><strong>Meter Number:</strong> ${jsonData.MeterNumber}</p>
-      <p><strong>Connection Status:</strong> ${jsonData.ConnectionStatus}</p>
-    `;
+                    <h2>Smart Meter Details</h2>
+                    <p><strong>Balance:</strong> ${jsonData.Balance}</p>
+                    <p><strong>Consumer Number:</strong> ${jsonData.Consumer_number}</p>
+                    <p><strong>Response Date Time:</strong> ${jsonData.responseDateTime}</p>
+                    <p><strong>Status:</strong> ${jsonData.status}</p>
+                    <p><strong>Meter Number:</strong> ${jsonData.MeterNumber}</p>
+                    <p><strong>Connection Status:</strong> ${jsonData.ConnectionStatus}</p>
+                `;
 
             // Insert the HTML content into the result container
             document.getElementById("resultContainer").innerHTML = resultHTML;
           })
           .catch((error) => {
             console.error("Error:", error);
+          })
+          .finally(() => {
+            document.getElementById("loading").style.display = "none"; // Hide loading indicator
           });
       }
     </script>
